@@ -1,0 +1,11 @@
+**/.postgres
+**/dist
+**/node_modules
+
+.git
+.env
+
+README.md
+docker-compose.yml
+Dockerfile.api
+Dockerfile.db

@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Users {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  tokens    Tokens[]
+  roles     UserRole[]
+
+  @@map("users")
+}
+
+model Tokens {
+  id        Int       @id @default(autoincrement())
+  token     String
+  userId    Int       @map("user_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  expiredAt DateTime? @map("expired_at")
+  revokedAt DateTime? @map("revoked_at")
+  
+  user      Users     @relation(fields: [userId], references: [id])
+
+  @@map("tokens")
+}
+
+model Roles {
+  id        Int       @id @default(autoincrement())
+  title     String
+  key       String    @unique
+  level     Int
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  users     UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permissions {
+  id        Int       @id @default(autoincrement())
+  title     String
+  key       String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  roles     RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId        Int       @map("role_id")
+  permissionId  Int       @map("permission_id")
+  assignedAt    DateTime  @default(now()) @map("assigned_at")
+  assignedBy    Int
+
+  role          Roles     @relation(fields: [roleId], references: [id])
+  permission    Permissions @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@map("role_permission")
+}
+
+model UserRole {
+  roleId    Int       @map("role_id")
+  userId    Int       @map("user_id")
+  assignedAt DateTime  @default(now()) @map("assigned_at")
+  assignedBy Int
+
+  role      Roles     @relation(fields: [roleId], references: [id])
+  user      Users     @relation(fields: [userId], references: [id])
+
+  @@id([roleId, userId])
+  @@map("role_user")
+}
