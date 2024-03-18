@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
-    command: sh -c "npm run migrate:reset && npm run start:dev"
+    command: sh -c "npm run migrate:deploy && npm run start:dev"
     stop_grace_period: 0s
     env_file:
       - .env
